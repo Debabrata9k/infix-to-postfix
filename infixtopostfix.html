@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Infix to Postfix Converter</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #2e3192, #1b1b2f);
+      color: #f8fafc;
+    }
+
+    .card {
+      width: 90%;
+      max-width: 600px;
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 18px;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
+      padding: 24px 26px 20px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(74, 222, 128, 0.4);
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-bottom: 18px;
+    }
+
+    label {
+      font-size: 0.84rem;
+      color: #cbd5f5;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.8);
+      color: #e5e7eb;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+
+    input[type="text"]::placeholder {
+      color: #6b7280;
+    }
+
+    input[type="text"]:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+      background: rgba(15, 23, 42, 1);
+    }
+
+    button {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      color: white;
+      box-shadow: 0 12px 25px rgba(59, 130, 246, 0.35);
+      transition: transform 0.1s, box-shadow 0.1s, filter 0.1s;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+      box-shadow: 0 16px 30px rgba(59, 130, 246, 0.45);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 8px 15px rgba(59, 130, 246, 0.35);
+    }
+
+    .result-box {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result-label {
+      font-size: 0.82rem;
+      color: #9ca3af;
+    }
+
+    .result-value {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.92rem;
+      word-break: break-all;
+      color: #e5e7eb;
+    }
+
+    .error {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: #f97373;
+    }
+
+    .hint {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: #9ca3af;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .hint span {
+      opacity: 0.9;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .chip {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.16);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      cursor: pointer;
+      transition: background 0.12s, transform 0.1s;
+    }
+
+    .chip:hover {
+      background: rgba(148, 163, 184, 0.3);
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 18px 16px 16px;
+      }
+      .card-title {
+        font-size: 1.2rem;
+      }
+      button {
+        padding-inline: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        Infix ➜ Postfix
+      </div>
+      <div class="badge">JS Converter</div>
+    </div>
+
+    <div class="subtitle">
+      Supports operators: <b>+ − × ÷ ^</b> and parentheses <b>( )</b>.<br />
+      Operands can be <b>multi-digit numbers</b> (123, 45) or identifiers (A, B, X1, y2).
+    </div>
+
+    <label for="infixInput">Enter infix expression</label>
+    <div class="input-row">
+      <input
+        id="infixInput"
+        type="text"
+        placeholder="Example: 123+45*(6-7)"
+      />
+      <button id="convertBtn">
+        Convert
+      </button>
+    </div>
+
+    <div id="error" class="error" style="display:none;"></div>
+
+    <div class="result-box">
+      <div>
+        <div class="result-label">Postfix expression</div>
+        <div id="postfixOutput" class="result-value">—</div>
+      </div>
+    </div>
+
+    <div class="chips">
+      <div class="chip" data-example="123+45*(6-7)">123 + 45 * (6 − 7)</div>
+      <div class="chip" data-example="(A+BC)*12"> (A + BC) * 12 </div>
+      <div class="chip" data-example="10+20*30"> 10 + 20 * 30 </div>
+      <div class="chip" data-example="(X1+Y2)*(Z-100)"> (X1 + Y2) * (Z − 100) </div>
+    </div>
+
+    <div class="hint">
+      <span>Tip: Press <b>Enter</b> inside the box to convert quickly.</span>
+      <span>Output tokens are space-separated (e.g. <b>123 45 6 7 - * +</b>).</span>
+    </div>
+  </div>
+
+  <script>
+    function precedence(op) {
+      if (op === '+' || op === '-') return 1;
+      if (op === '*' || op === '/') return 2;
+      if (op === '^') return 3;
+      return 0;
+    }
+    function isRightAssociative(op) {
+      return op === '^';
+    }
+    function isOperator(ch) {
+      return ['+', '-', '*', '/', '^'].includes(ch);
+    }
+    function tokenize(expr) {
+      const tokens = [];
+      let i = 0;
+
+      while (i < expr.length) {
+        let ch = expr[i];
+
+        // Ignore spaces / tabs
+        if (ch === ' ' || ch === '\t') {
+          i++;
+          continue;
+        }
+
+        // Multi-digit numbers or identifiers (letters+digits)
+        if (/[a-zA-Z0-9]/.test(ch)) {
+          let j = i + 1;
+          while (j < expr.length && /[a-zA-Z0-9]/.test(expr[j])) {
+            j++;
+          }
+          tokens.push(expr.slice(i, j)); // full token
+          i = j;
+          continue;
+        }
+
+        // Operators and parentheses
+        if (isOperator(ch) || ch === '(' || ch === ')') {
+          tokens.push(ch);
+          i++;
+          continue;
+        }
+
+        // Anything else is invalid
+        throw new Error('Invalid character: ' + ch);
+      }
+
+      return tokens;
+    }
+    function infixToPostfix(expr) {
+      const tokens = tokenize(expr);
+      const stack = [];
+      const output = [];
+
+      for (let t of tokens) {
+        if (t === '(') {
+          stack.push(t);
+        } else if (t === ')') {
+          // pop until '('
+          while (stack.length && stack[stack.length - 1] !== '(') {
+            output.push(stack.pop());
+          }
+          if (!stack.length) {
+            throw new Error('Mismatched parentheses');
+          }
+          stack.pop(); // remove '('
+        } else if (isOperator(t)) {
+          // pop operators from stack based on precedence & associativity
+          while (
+            stack.length &&
+            isOperator(stack[stack.length - 1]) &&
+            (
+              (!isRightAssociative(t) && precedence(t) <= precedence(stack[stack.length - 1])) ||
+              (isRightAssociative(t) && precedence(t) < precedence(stack[stack.length - 1]))
+            )
+          ) {
+            output.push(stack.pop());
+          }
+          stack.push(t);
+        } else {
+          // operand token (number or identifier)
+          output.push(t);
+        }
+      }
+
+      while (stack.length) {
+        const top = stack.pop();
+        if (top === '(' || top === ')') {
+          throw new Error('Mismatched parentheses');
+        }
+        output.push(top);
+      }
+      return output.join(' ');
+    }
+    const inputEl = document.getElementById('infixInput');
+    const btn = document.getElementById('convertBtn');
+    const outEl = document.getElementById('postfixOutput');
+    const errEl = document.getElementById('error');
+    const chips = document.querySelectorAll('.chip');
+    function convertAndShow() {
+      const expr = inputEl.value.trim();
+      if (!expr) {
+        errEl.style.display = 'block';
+        errEl.textContent = 'Please enter an infix expression.';
+        outEl.textContent = '—';
+        return;
+      }
+
+      try {
+        const result = infixToPostfix(expr);
+        errEl.style.display = 'none';
+        outEl.textContent = result || '—';
+      } catch (e) {
+        errEl.style.display = 'block';
+        errEl.textContent = e.message;
+        outEl.textContent = '—';
+      }
+    }
+    btn.addEventListener('click', convertAndShow);
+    inputEl.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        convertAndShow();
+      }
+    });
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const example = chip.getAttribute('data-example');
+        inputEl.value = example;
+        inputEl.focus();
+      });
+    });
+  </script>
+</body>
+</html>
